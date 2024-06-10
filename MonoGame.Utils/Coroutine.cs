@@ -87,7 +87,7 @@ public static class Coroutine
         guid = Start(routine);
     }
 
-    internal static void UpdateAll(GameTime time)
+    public static void UpdateAll(GameTime time)
     {
         List<Guid> finishedRoutines = [];
         foreach (Routine routine in RunningRoutines.Values)
