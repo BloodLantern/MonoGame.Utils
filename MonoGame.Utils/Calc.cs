@@ -154,8 +154,6 @@ public static partial class Calc
     public static Color GetHue(Vector2 position, float time)
         => HsvToColor(0.4f + YoYo((position.Length() + time * 50f) % 280f / 280f) * 0.4f, 0.4f, 0.9f);
 
-    public static bool EqualsWithTolerance(this float value, float other, float tolerance = 1E-05f) => Math.Abs(value - other) <= tolerance;
-
     [GeneratedRegex(@"(?:(?<=\p{Ll})\p{Lu})|(?:\p{Lu}(?=\p{Ll}))(?<!^.)")]
     private static partial Regex HumanizeStringRegex();
 
