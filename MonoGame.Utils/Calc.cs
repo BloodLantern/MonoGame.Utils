@@ -146,6 +146,9 @@ public static partial class Calc
     public static float EaseLerp(float a, float b, float t, float duration, Ease.Easer ease)
         => MathHelper.Lerp(a, b, ease(Math.Min(t, duration) / duration));
 
+    public static Vector2 EaseLerp(Vector2 a, Vector2 b, float t, float duration, Ease.Easer ease)
+        => Vector2.Lerp(a, b, ease(Math.Min(t, duration) / duration));
+
     public static float YoYo(float value) => value <= 0.5f ? value * 2f : 1f - (value - 0.5f) * 2f;
 
     public static Color GetHue(Vector2 position, float time)
