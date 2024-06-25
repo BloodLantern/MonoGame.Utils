@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Runtime.Serialization;
+using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
 
@@ -6,35 +7,26 @@ namespace MonoGame.Utils;
 
 public static class XmlSerializationHelper
 {
-    public static T LoadFromXml<T>(string xmlString, XmlSerializer serial = null)
+    public static void Serialize<T>(T obj, string path)
     {
-        serial ??= new(typeof(T));
-        T returnValue = default;
-        using StringReader reader = new(xmlString);
-        object result = serial.Deserialize(reader);
+        XmlSerializerNamespaces ns = new();
+        ns.Add("", ""); // Disable the xmlns:xsi and xmlns:xsd lines.
+        
+        using XmlTextWriter textWriter = new(path, Encoding.UTF8);
+        XmlWriterSettings settings = new() { Indent = true, IndentChars = "    ", Encoding = Encoding.UTF8 };
+        using XmlWriter xmlWriter = XmlWriter.Create(textWriter, settings);
+        
+        new XmlSerializer(typeof(T)).Serialize(xmlWriter, obj, ns);
+    }
+
+    public static T Deserialize<T>(string path)
+    {
+        using StringReader reader = new(File.ReadAllText(path));
+        object result = new XmlSerializer(typeof(T)).Deserialize(reader);
+        
         if (result is T t)
-            returnValue = t;
-        return returnValue;
+            return t;
+
+        throw new SerializationException($"Cannot deserialize object of type {result?.GetType()} using type {typeof(T)}");
     }
-
-    public static string GetXml(object obj, bool omitStandardNamespaces) => GetXml(obj, null, omitStandardNamespaces);
-
-    public static string GetXml(object obj, XmlSerializer serializer = null, bool omitStandardNamespaces = false)
-    {
-        XmlSerializerNamespaces ns = null;
-        if (omitStandardNamespaces)
-        {
-            ns = new();
-            ns.Add("", ""); // Disable the xmlns:xsi and xmlns:xsd lines.
-        }
-        using StringWriter textWriter = new();
-        XmlWriterSettings settings = new() { Indent = true, IndentChars = "    ", Encoding = Encoding.Default }; // For cosmetic purposes.
-        using (XmlWriter xmlWriter = XmlWriter.Create(textWriter, settings))
-            (serializer ?? new XmlSerializer(obj.GetType())).Serialize(xmlWriter, obj, ns);
-        return textWriter.ToString();
-    }
-
-    public static void Serialize(object obj, string path) => File.WriteAllText(path, GetXml(obj, true));
-
-    public static T Deserialize<T>(string path) => LoadFromXml<T>(File.ReadAllText(path));
 }
